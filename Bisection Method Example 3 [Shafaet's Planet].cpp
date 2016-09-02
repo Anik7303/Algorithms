@@ -84,6 +84,7 @@ typedef queue<string> qs;
 #define sln(x) x.size()
 #define acl(x) x.clear()
 #define qcl(x) {while(!x.empty()) x.pop(); }
+
 #define N 1000
 int edge_weight[N+2];
 mci _map;
