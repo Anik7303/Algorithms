@@ -84,90 +84,113 @@ typedef queue<string> qs;
 #define sln(x) x.size()
 #define acl(x) x.clear()
 #define qcl(x) {while(!x.empty()) x.pop(); }
+#define N 1000
+int edge_weight[N+2];
+mci _map;
 
 struct NODE {
     int visited;
     char name;
+    vector<pii>edge;
 };
 
-int n;
-mci _map;
-vector<NODE> graph;
-int weight[27][27];
-bool edges[27][27], arr[27][27];
-
-void dfs_visit(int x) {
-    for(int i=0; i<n; i++) {
-        if(arr[x][i]==true && graph[i].visited==0) {
-            graph[i].visited = 1;
-            dfs_visit(i);
+void dfs_visit(vector<NODE>&graph, int source, int weight) {
+    int i, x, w, n;
+    n = graph[source].edge.size();
+    for(i=0; i<n; i++) {
+        x = graph[source].edge[i].first;
+        w = graph[source].edge[i].second;
+        if(graph[x].visited==0 && w<=weight) {
+            graph[x].visited = 1;
+            dfs_visit(graph, x, weight);
         }
     }
     return ;
 }
 
-bool dfs(int s, int d) {
-    for(int i=0; i<n; i++) {
+bool dfs(vector<NODE>&graph, int source, int destination, int weight) {
+    int i, x, w, n;
+    n =graph.size();
+    for(i=0; i<n; i++) {
         graph[i].visited = 0;
     }
-    graph[s].visited = 1;
-    for(int i=0; i<n; i++) {
-        if(arr[s][i]==true && graph[i].visited==0) {
-            graph[i].visited = 1;
-            dfs_visit(i);
+    graph[source].visited = 1;
+    n = graph[source].edge.size();
+    for(i=0; i<n; i++) {
+        x = graph[source].edge[i].first;
+        w = graph[source].edge[i].second;
+        if(!graph[x].visited && w<=weight) {
+            graph[x].visited = 1;
+            dfs_visit(graph, x, weight);
         }
     }
-    if(graph[d].visited==1) return true;
+    if(graph[destination].visited) return true;
     return false;
 }
 
-int calculate(int s, int d, int high) {
-    int low, mid, value;
-    low = 0;
-    while(low<high) {
-        mid = (low+high)/2;
-        for(int i=0; i<n; i++) {
-            for(int j=0; j<n; j++) {
-                arr[i][j] = edges[i][j];
-                if(arr[i][j]==true && weight[i][j]>mid) {
-                    arr[i][j] = false;
-                }
+bool bfs(vector<NODE>&graph, int source, int destination, int weight) {
+    int i, j, x, w, n, top;
+    qi Q;
+    n = graph.size();
+    for(i=0; i<n; i++) graph[i].visited = 0;
+    graph[source].visited = 1;
+    pu(Q, source);
+    while(!Q.empty()) {
+        top = Q.front();
+        Q.pop();
+        n = graph[top].edge.size();
+        for(i=0; i<n; i++) {
+            x = graph[top].edge[i].first;
+            w = graph[top].edge[i].second;
+            if(!graph[x].visited && w<=weight) {
+                pu(Q, x);
+                graph[x].visited = 1;
             }
         }
-        bool res = dfs(s, d);
-        if(res==true) {
-            high = mid-1;
+    }
+    return graph[destination].visited&1;
+}
+
+int calculate(vector<NODE>&graph, int source, int destination, int high) {
+    int low, mid, value;
+    value = low = 0;
+    while(low<=high) {
+        mid = (low+high)/2;
+        //if(dfs(graph, source, destination, mid)) { /// finding path using DFS
+        if(bfs(graph, source, destination, mid)) { /// finding path using BFS
+            high = mid - 1;
             value = mid;
         }else {
-            low = mid+1;
+            low = mid + 1;
         }
-
     }
     return value;
 }
 
-int binary_search_down(int ax[], int value, int x) {
-    int low, high, mid, index;
-    index = low = 0;
-    high = x;
-    while(low<high) {
+int binary_search_down(int value, int high) {
+    int low, mid, index;
+    low = 0;
+    index = -1;
+    while(low<=high) {
         mid = (low+high)/2;
-        if(ax[mid]>value) {
+        if(edge_weight[mid]>value) {
             high = mid-1;
         }else {
             low = mid+1;
             index = mid;
         }
     }
+    if(~index) return edge_weight[index];
     return index;
 }
 
 int main()
 {
-    fr("C:\\Users\\Anik\\Desktop\\input.txt");
-    int i, j, w, e, mw;
+    //fr("Bisection Method Example 3 [Shafaet's Planet].txt");
+    int i, j, w, e, mw, n;
     char c, x, y;
     NODE temp;
+    vector<NODE>graph;
     ///pfcs("Number of vertex: ");
     while(sci(n)==1) {
         for(i=0; i<n; i++) {
@@ -178,10 +201,7 @@ int main()
         }
         ///pfcs("Number of edge: ");
         sci(e);
-        int edge_weight[e+2];
         mw = 0;
-        mset(edges, 0);
-        mset(weight, 0);
         for(i=0; i<e; i++) {
             scc(x);
             scc(y);
@@ -190,19 +210,27 @@ int main()
             mw = max(mw, w);
             int p = _map[x];
             int q = _map[y];
-            weight[p][q] = w;
-            weight[q][p] = w;
-            edges[p][q] = edges[q][p] = true;
+            pb(graph[p].edge, mp(q, w));
+            pb(graph[q].edge, mp(p, w));
         }
-        ///pfcs("Source: ");
+        // Source vertex name
         scc(x);
-        ///pfcs("Destination: ");
+        // Destination vertex name
         scc(y);
-        ///printf("source: %c destination: %c\n", x, y);
-        int res = calculate(_map[x], _map[y], mw);
+        printf("source: %c destination: %c ", x, y);
+        int res = calculate(graph, _map[x], _map[y], mw);
+        //printf("calculated res: %d\n", res);
         sort(edge_weight, edge_weight+e);
-        res = binary_search_down(edge_weight, res, e);
-        printf("Minimum weight: %d\n", edge_weight[res]);
+
+        pfcs("edges:");
+        for(i=0; i<e; i++) {
+            pfsp();
+            pfi(edge_weight[i]);
+        }
+        pfn();
+
+        res = binary_search_down(res, e);
+        printf("minimum weight: %d\n", res);
         acl(_map);
         acl(graph);
     }
