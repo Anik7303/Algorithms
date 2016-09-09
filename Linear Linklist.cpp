@@ -88,13 +88,15 @@ typedef queue<string> qs;
 struct NODE {
     int value;
     NODE *next;
-    void insertNode(int value);
-    void insertAfter(int node, int value);
-    void insertBefore(int node, int value);
-    bool deleteNode(int value);
-    bool showAll();
-    void clearAll();
+    void insertNode(int value); // Insert a node at the end of the list
+    void insertAfter(int node, int value); // Insert a node after an existing node
+    void insertBefore(int node, int value); // Insert a node before an existing node
+    bool deleteNode(int value); // Delete a node from the list
+    bool showAll(); // print all the values in the list
+    void clearAll(); // Delete all list elements
 }*root=NULL, *linklist;
+
+// 'root' contains the first element of the list
 
 void NODE::insertNode(int value) {
     if(root==NULL) {
@@ -191,41 +193,41 @@ void NODE::clearAll() {
 
 int main()
 {
-    int i, j, n, x;
-    printf("Number of nodes: ");
+    int i, j, n, selector, value, node;
+    /*** printf("Number of nodes: "); ***/
     scanf("%d", &n);
-    printf("The values:\n");
+    /*** printf("The values:\n"); ***/
     while(n--) {
-        scanf("%d", &x);
-        linklist->insertNode(x);
+        scanf("%d", &value);
+        linklist->insertNode(value);
     }
+    /***
     printf("Enter 1 to insert a new node\nEnter 2 to delete a node\nEnter 3 to view all nodes\nEnter 4 to clear the list\nEnter 5 to insert after a node\nEnter 6 to insert before a node\nCommand: ");
-    while(scanf("%d", &x)==1 && x) {
-        int v, t;
-        switch(x) {
+    ***/
+    while(scanf("%d", &selector)==1 && selector) {
+        switch(selector) { // here selector is an integer used to access the different cases described below
         case 1:
-            scanf("%d", &v);
-            linklist->insertNode(v);
+            scanf("%d", &value);
+            linklist->insertNode(value); // here 'value' is the value that is inserted at the end of the list
             break;
         case 2:
-            scanf("%d", &v);
-            linklist->deleteNode(v);
+            scanf("%d", &value);
+            linklist->deleteNode(value); // 'value' is deleted from the list if it exist and the function returns true, otherwise nothing happens and the function returns false
             break;
         case 3:
-            linklist->showAll();
+            linklist->showAll(); // print all the values in the list
             break;
         case 4:
-            linklist->clearAll();
+            linklist->clearAll(); // delete all the values from the list
             break;
         case 5:
-            scanf("%d %d", &v, &t);
-            linklist->insertAfter(v, t);
+            scanf("%d %d", &node, &value);
+            linklist->insertAfter(node, value); // here 'value' is going to be inserted after 'node'
             break;
         case 6:
-            scanf("%d %d", &v, &t);
-            linklist->insertBefore(v, t);
+            scanf("%d %d", &node, &value);
+            linklist->insertBefore(node, value); // here 'value' is going to be inserted before 'node'
             break;
         }
-        printf("Command: ");
     }
 }
