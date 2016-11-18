@@ -157,17 +157,10 @@ void update(int l, int r, int idx, int i, int j, int val) {
     int right = left+1;
     int mid = (l+r)/2;
     if(i<=mid) update(l, mid, left, i, j, val);
-    else update(mid+1, r, right, i, j, val);
+    if(j>mid) update(mid+1, r, right, i, j, val);
     tree[idx].Sum = tree[left].Sum + tree[right].Sum + (tree[idx].Propagate * (r-l+1));
     tree[idx].Max = max(tree[left].Max, tree[right].Max);
     tree[idx].Min = min(tree[left].Min, tree[right].Min);
-    return ;
-}
-
-void show(int n) {
-    for(int i=1; i<=n; i++) {
-        printf("node: %d sum: %d min: %d max: %d propagate: %d\n", i, tree[i].Sum, tree[i].Min, tree[i].Max, tree[i].Propagate);
-    }
     return ;
 }
 
@@ -179,7 +172,6 @@ int main()
         for(i=0; i<n; i++) sci(arr[i]);
         build(0, n-1, 1);
         sci(q);
-        //show(n*3);
         for(i=0; i<q; i++) {
             sci(j);
             switch(j) {
@@ -187,13 +179,11 @@ int main()
                 scii(x, y);
                 res = query(1, n, 1, x, y);
                 printf("sum: %d min: %d max: %d\n", res.Sum, res.Min, res.Max);
-                //show(n*3);
                 break;
             case 2:
                 scii(x, y);
                 sci(k);
                 update(1, n, 1, x, y, k);
-                //show(n*3);
                 break;
             }
         }
